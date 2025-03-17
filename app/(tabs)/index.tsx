@@ -1,74 +1,76 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { StyleSheet, FlatList } from 'react-native';
+import { View } from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { router } from 'expo-router';
+import { GAMES, Game } from '../../constants/Games';
 
-export default function HomeScreen() {
+// Componente para la tarjeta de juego
+const GameCard = ({ game }: { game: Game }) => {
+  // Función para navegar directamente al juego correspondiente
+  const navigateToGame = () => {
+    switch (game.id) {
+      case '1': // Tic Tac Toe
+        router.push('/games/tictactoe');
+        break;
+      case '2': // Piedra, Papel y Tijeras
+        router.push('/games/ppt');
+        break;
+      default:
+        // Si no hay implementación específica, usa la ruta dinámica
+        router.push(`/games/${game.id}`);
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
+    <ThemedView style={styles.card} onTouchEnd={navigateToGame}>
+      <ThemedText style={styles.gameIcon}>{game.icon}</ThemedText>
+      <ThemedText type="subtitle">{game.name}</ThemedText>
+    </ThemedView>
+  );
+};
+
+export default function GamesScreen() {
+  return (
+    <View style={styles.container}>
+      <ThemedView style={styles.header}>
+        <ThemedText type="title">Juegos</ThemedText>
       </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12'
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          Tap the Explore tab to learn more about what's included in this starter app.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          When you're ready, run{' '}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+      
+      <FlatList
+        data={GAMES}
+        renderItem={({ item }) => <GameCard game={item} />}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.list}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    padding: 16,
+  },
+  header: {
+    marginVertical: 16,
+  },
+  list: {
+    gap: 16,
+  },
+  card: {
+    padding: 20,
+    borderRadius: 12,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 8,
+    elevation: 3,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
+  gameIcon: {
+    fontSize: 24,
+  }
 });
